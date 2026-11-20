@@ -10,6 +10,7 @@ OUT=docker-compose.stores.yml
 {
   echo "# ⚠️ 此檔由 scripts/gen-stores.sh 依 stores.csv 自動產生，請勿手動修改"
   echo "# 所有分店都使用同一個 drink-store 映像檔，只有環境變數不同"
+  echo "# 只在「分店機」上執行；總部位址由 .env 的 HQ_URL 指定"
   echo "services:"
 } > "$OUT"
 
@@ -36,15 +37,14 @@ while IFS=, read -r id name city password || [ -n "${id:-}" ]; do
     image: \${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:\${TAG:-latest}
     container_name: drink-store-${id}
     restart: unless-stopped
-    depends_on:
-      - hq
     environment:
       STORE_ID: "${id}"
       STORE_NAME: "${name}"
       STORE_CITY: "${city}"
+      STORE_PUBLIC_URL: "\${STORE_BASE_URL:-}/store/${id}/"
       MANAGER_USER: manager
       MANAGER_PASSWORD: "\${STORE_PASSWORD_${envkey}:-${password}}"
-      HQ_URL: http://hq:5000
+      HQ_URL: \${HQ_URL:-http://hq:5000}
       HQ_API_KEY: \${HQ_API_KEY:-change-me-api-key}
       SECRET_KEY: \${SECRET_KEY:-dev-secret-change-me}
       BRAND_NAME: \${BRAND_NAME:-開心飲品}

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 一鍵新增分店：寫入 stores.csv → 重新產生 compose 設定 → 啟動新分店容器
+# 一鍵新增分店（在分店機上執行）：寫入 stores.csv → 重新產生 compose 設定 → 啟動新分店容器
 # 用法：bash scripts/add-store.sh <分店代號> <分店名稱> <城市> [店長密碼]
 # 範例：bash scripts/add-store.sh kaohsiung 高雄左營店 高雄市 khhpass
 set -euo pipefail
@@ -40,6 +40,6 @@ echo " $status"
 
 echo
 echo "🎉 新分店「${name}」已啟動！"
-echo "   門市網站：http://<主機IP>/store/${id}/"
+echo "   門市網站：http://<分店機IP>/store/${id}/"
 echo "   店長帳號：manager / ${password}"
 echo "   約 30 秒內會自動出現在總部的門市清單與營收儀表板。"

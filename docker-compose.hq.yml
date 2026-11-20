@@ -1,0 +1,37 @@
+# =====================================================================
+# 開心飲品 —— 總部服務（只在「總部機／老闆機」上執行）
+#
+#   hq : 品牌官網、老闆後台、共用菜單 API、彙總各分店營收
+#
+# 分店在其他機器上，透過 http://<總部機IP>/api/... 向總部報到、取菜單、回報訂單。
+# =====================================================================
+services:
+  hq:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-hq:${TAG:-latest}
+    container_name: drink-hq
+    restart: unless-stopped
+    environment:
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      ADMIN_USER: ${ADMIN_USER:-boss}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-boss1234}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      # 總部負責 / 底下所有路徑；分店的 /store/<id> 路由較長，會優先比對
+      - "traefik.http.routers.hq.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.hq.priority=1"
+      - "traefik.http.routers.hq.entrypoints=web"
+      - "traefik.http.services.hq.loadbalancer.server.port=5000"
+    volumes:
+      - hq-data:/data
+    networks:
+      - drinknet
+
+networks:
+  drinknet:
+    name: drinknet
+
+volumes:
+  hq-data:

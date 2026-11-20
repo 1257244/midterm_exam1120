@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 停用分店：從 stores.csv 移除 → 重新產生 compose 設定 → 停止並移除該分店容器
+# 停用分店（在分店機上執行）：從 stores.csv 移除 → 重新產生 compose 設定 → 停止並移除該分店容器
 # 分店資料（volume）預設會保留，加上 --purge 才會一起刪除
 # 用法：bash scripts/remove-store.sh <分店代號> [--purge]
 set -euo pipefail

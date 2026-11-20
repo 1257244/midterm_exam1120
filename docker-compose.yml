@@ -1,12 +1,12 @@
 # =====================================================================
-# 開心飲品 連鎖店分散式系統 —— 核心服務
+# 開心飲品 連鎖店分散式系統 —— 閘道（總部機、分店機都需要）
 #
-#   gateway : Traefik 反向代理閘道（唯一對外入口 :80）
-#             自動偵測容器上的 labels，新分店啟動後「自動」加入路由，不用改設定
-#   hq      : 總部服務（品牌入口網站、共用菜單 API、營收彙總）
+#   gateway : Traefik 反向代理閘道（這台機器唯一的對外入口 :80）
+#             自動偵測容器上的 labels，新服務啟動後「自動」加入路由，不用改設定
 #
-# 分店服務定義在 docker-compose.stores.yml（由 stores.csv 自動產生）。
-# .env 裡的 COMPOSE_FILE 會讓 docker compose 同時讀取兩個檔案。
+# 這台機器要跑什麼，由 .env 裡的 COMPOSE_FILE 決定：
+#   總部機：docker-compose.yml + docker-compose.hq.yml      （範本 .env.hq.example）
+#   分店機：docker-compose.yml + docker-compose.stores.yml  （範本 .env.store.example）
 # =====================================================================
 name: drinkshop
 
@@ -24,39 +24,13 @@ services:
       - --api.insecure=true          # :8080 閘道監控面板（教學展示用）
       - --accesslog=true
     ports:
-      - "80:80"
-      - "8080:8080"
+      - "${HTTP_PORT:-80}:80"
+      - "${DASHBOARD_PORT:-8080}:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - drinknet
-
-  hq:
-    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-hq:${TAG:-latest}
-    container_name: drink-hq
-    restart: unless-stopped
-    environment:
-      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
-      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
-      ADMIN_USER: ${ADMIN_USER:-boss}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-boss1234}
-      BRAND_NAME: ${BRAND_NAME:-開心飲品}
-      TZ: Asia/Taipei
-    labels:
-      - "traefik.enable=true"
-      # 總部負責 / 底下所有路徑；分店的 /store/<id> 路由較長，會優先比對
-      - "traefik.http.routers.hq.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.hq.priority=1"
-      - "traefik.http.routers.hq.entrypoints=web"
-      - "traefik.http.services.hq.loadbalancer.server.port=5000"
-    volumes:
-      - hq-data:/data
     networks:
       - drinknet
 
 networks:
   drinknet:
     name: drinknet
-
-volumes:
-  hq-data:

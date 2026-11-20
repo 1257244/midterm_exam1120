@@ -5,7 +5,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-[ -f .env ] || { echo "❌ 找不到 .env，請先執行：cp .env.example .env"; exit 1; }
+[ -f .env ] || { echo "❌ 找不到 .env，請先執行：cp .env.hq.example .env（或 .env.store.example）"; exit 1; }
 set -a; . ./.env; set +a
 : "${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}"
 TAG=${TAG:-latest}
