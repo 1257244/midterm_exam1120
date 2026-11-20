@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ brand }}{% endblock %}｜{{ brand }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='brand.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="logo" href="{{ url_for('portal') }}">
+      <span class="logo-mark">🧋</span>
+      <span>{{ brand }} <span class="sub">{% if session.admin %}總部後台{% else %}官方網站{% endif %}</span></span>
+    </a>
+    <nav class="nav">
+      {% set ep = request.endpoint %}
+      <a href="{{ url_for('portal') }}" class="{{ 'active' if ep == 'portal' }}">門市據點</a>
+      {% if session.admin %}
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if ep in ['dashboard', 'store_detail'] }}">營收總覽</a>
+        <a href="{{ url_for('manage_menu') }}" class="{{ 'active' if ep == 'manage_menu' }}">共用菜單</a>
+        <a href="{{ url_for('logout') }}">登出</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if ep == 'login' }}">總部登入</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+<main class="container">
+  {% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="foot">© {{ brand }} 連鎖茶飲 · 總部服務</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

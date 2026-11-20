@@ -1,0 +1,24 @@
+{# 飲品卡片：所有分店共用；special=True 時顯示「本店限定」 #}
+{% macro drink_card(d, idx, special=False) %}
+{% set emojis = ['🧋', '🍂', '🍵', '🌼', '🌿', '🍑', '🫐'] %}
+{% set img = image_url(d.image) %}
+<div class="drink{{ ' special' if special }}" data-drink>
+  <div class="drink-art {{ 'art-special' if special else 'art-' ~ (idx % 7) }}{{ ' has-img' if img }}"
+       {% if img %}style="background-image:url('{{ img }}')" role="img" aria-label="{{ d.name }}"{% endif %}>
+    {% if not img %}{{ '⭐' if special else emojis[idx % 7] }}{% endif %}
+    {% if special %}<span class="badge special tag">本店限定</span>{% endif %}
+  </div>
+  <div class="drink-body">
+    <div class="drink-name">{{ d.name }}</div>
+    <div class="drink-desc">{{ d.description or '' }}</div>
+    <div class="drink-foot">
+      <span class="price">{{ d.price | money }}</span>
+      <div class="stepper">
+        <button type="button" data-step="-1" aria-label="減少">−</button>
+        <input type="number" name="qty_{{ d.name }}" min="0" max="99" value="0" data-price="{{ d.price }}" inputmode="numeric">
+        <button type="button" data-step="1" aria-label="增加">＋</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

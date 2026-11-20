@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}訂單完成{% endblock %}
+{% block content %}
+<div class="card ticket">
+  <div class="ticket-head">
+    <div class="check">✅</div>
+    <h2 style="margin:6px 0 4px">訂單已成立</h2>
+    <div style="opacity:.9">{{ store.name }}</div>
+  </div>
+  <div class="ticket-body">
+    <p class="muted small" style="margin-top:0">訂單編號 <strong style="color:var(--ink)">{{ order.order_no }}</strong><br>下單時間 {{ order.created_at }}</p>
+    <table class="table">
+      <thead><tr><th>品項</th><th class="num">單價</th><th class="num">數量</th><th class="num">小計</th></tr></thead>
+      <tbody>
+      {% for i in items %}
+      <tr><td>{{ i.name }}{% if i.kind == 'special' %} <span class="badge special plain">限定</span>{% endif %}</td>
+          <td class="num">{{ i.price | money }}</td><td class="num">× {{ i.qty }}</td><td class="num">{{ (i.price * i.qty) | money }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="ticket-total"><span>合計</span><span>{{ order.total | money }}</span></div>
+    <a class="btn btn-block" style="margin-top:20px" href="{{ url_for('index') }}">繼續點餐</a>
+  </div>
+</div>
+{% endblock %}

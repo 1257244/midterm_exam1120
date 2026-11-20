@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.db
+*.db-wal
+*.db-shm
+data/
+.venv/
+stores.csv.tmp
+# 原始產品照（已裁切壓縮後放在 shared/drinks/）
+飲料圖片/

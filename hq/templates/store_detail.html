@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ s.name }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('dashboard') }}">← 回營收總覽</a></p>
+<div class="section-head">
+  <div>
+    <h2 style="font-size:1.5rem;margin-bottom:4px">{{ s.name }}</h2>
+    <div class="muted small">{{ s.city }} · 代號 {{ s.store_id }} · 加入時間 {{ s.first_seen or '—' }} · 最後回報 {{ s.last_seen or '—' }}</div>
+  </div>
+  <div class="form-row">
+    {% if s.online %}<span class="badge ok">連線中</span>{% else %}<span class="badge off">離線</span>{% endif %}
+    {% if s.url %}<a class="btn btn-sm" href="{{ s.url }}" target="_blank">前往分店網站</a>{% endif %}
+  </div>
+</div>
+
+<div class="kpis">
+  <div class="kpi accent"><div class="label">今日營收</div><div class="value">{{ s.today_revenue | money }}</div><div class="hint">{{ s.today_orders }} 筆訂單</div></div>
+  <div class="kpi"><div class="label">累計營收</div><div class="value">{{ s.revenue | money }}</div></div>
+  <div class="kpi"><div class="label">訂單數</div><div class="value">{{ s.order_count }}</div></div>
+  <div class="kpi"><div class="label">客單價</div><div class="value">{{ s.avg_ticket | money }}</div></div>
+</div>
+
+<div class="grid grid-2 section">
+  <div class="card">
+    <h3>近 14 日營收</h3>
+    {% set dmax = daily | map(attribute='revenue') | max %}
+    <div class="cols">
+      {% for d in daily %}
+      <div class="col" title="{{ d.day }}：{{ d.revenue | money }}">
+        <div class="col-val">{% if d.revenue %}{{ d.revenue }}{% endif %}</div>
+        <div class="col-bar" style="height:{{ (d.revenue / dmax * 100) if dmax else 0 }}%"></div>
+        <div class="col-lbl">{{ d.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>品項銷售</h3>
+    {% set imax = (items | map(attribute='revenue') | max) if items else 0 %}
+    <div class="bars">
+      {% for i in items %}
+      <div class="bar-row">
+        <span>{{ i.name }}</span>
+        <div class="bar-track"><div class="bar-fill {{ 'amber' if i.kind == 'special' else 'blue' }}" style="width:{{ (i.revenue / imax * 100) if imax else 0 }}%"></div></div>
+        <span class="num small"><strong>{{ i.revenue | money }}</strong> · {{ i.qty }} 杯</span>
+      </div>
+      {% else %}<div class="empty">尚無銷售資料</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card section">
+  <h3>最近 20 筆訂單</h3>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>訂單編號</th><th>時間</th><th class="num">金額</th></tr></thead>
+      <tbody>
+      {% for o in recent %}<tr><td>{{ o.order_no }}</td><td>{{ o.created_at }}</td><td class="num">{{ o.total | money }}</td></tr>
+      {% else %}<tr><td colspan="3" class="empty">尚無訂單</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>門市管理</h3>
+  <p class="muted small">分店停業後，可以把它從門市清單移除，歷史營收會保留。如果該分店的服務仍在運作，會再自動報到。</p>
+  <form method="post" action="{{ url_for('remove_store', store_id=s.store_id) }}" onsubmit="return confirm('確定將 {{ s.name }} 從門市清單移除？')">
+    <button class="btn btn-outline btn-sm" type="submit">從門市清單移除</button>
+  </form>
+</div>
+{% endblock %}

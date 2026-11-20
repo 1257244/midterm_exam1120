@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}總部登入{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="card login-card">
+    <div class="logo-mark">👔</div>
+    <h2 style="margin-bottom:4px">總部管理登入</h2>
+    <p class="muted small" style="margin-top:0">登入後可以查看全品牌、各分店的營收，並管理共用菜單。</p>
+    <form method="post">
+      <div class="field"><label>帳號</label><input class="input" name="username" required autofocus></div>
+      <div class="field"><label>密碼</label><input class="input" name="password" type="password" required></div>
+      <button class="btn btn-block" type="submit">登入</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

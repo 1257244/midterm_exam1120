@@ -1,0 +1,11 @@
+.git
+.env
+**/__pycache__
+**/*.pyc
+**/*.db
+**/*.db-wal
+**/*.db-shm
+docker-compose*.yml
+stores.csv
+scripts
+README.md

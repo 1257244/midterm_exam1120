@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}營收總覽{% endblock %}
+{% block content %}
+<div class="section-head">
+  <div>
+    <h2 style="font-size:1.5rem">營收總覽</h2>
+    <div class="muted small">資料來源：各分店每 30 秒自動回報 · 頁面每 60 秒自動更新</div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('dashboard') }}">↻ 重新整理</a>
+</div>
+
+<div class="kpis">
+  <div class="kpi accent"><div class="label">💰 今日營收</div><div class="value">{{ totals.today | money }}</div><div class="hint">今日 {{ totals.today_orders }} 筆訂單</div></div>
+  <div class="kpi"><div class="label">📈 全品牌累計營收</div><div class="value">{{ totals.revenue | money }}</div><div class="hint">共 {{ totals.orders }} 筆訂單</div></div>
+  <div class="kpi"><div class="label">🧾 平均客單價</div><div class="value">{{ totals.avg_ticket | money }}</div><div class="hint">累計營收 ÷ 訂單數</div></div>
+  <div class="kpi"><div class="label">📡 分店連線</div><div class="value">{{ totals.online }} <span class="muted" style="font-size:1rem">/ {{ totals.stores }}</span></div><div class="hint">{{ cities | length }} 個城市</div></div>
+</div>
+
+<div class="grid grid-2 section">
+  <div class="card">
+    <h3>近 14 日營收</h3>
+    {% set dmax = daily | map(attribute='revenue') | max %}
+    <div class="cols">
+      {% for d in daily %}
+      <div class="col" title="{{ d.day }}：{{ d.revenue | money }}（{{ d.orders }} 筆）">
+        <div class="col-val">{% if d.revenue %}{{ (d.revenue / 1000) | round(1) }}k{% endif %}</div>
+        <div class="col-bar" style="height:{{ (d.revenue / dmax * 100) if dmax else 0 }}%"></div>
+        <div class="col-lbl">{{ d.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>各城市營收</h3>
+    {% set cmax = (cities | map(attribute='revenue') | max) if cities else 0 %}
+    <div class="bars">
+      {% for c in cities %}
+      <div class="bar-row">
+        <span>{{ c.city }} <span class="muted small">· {{ c.stores }} 店</span></span>
+        <div class="bar-track"><div class="bar-fill" style="width:{{ (c.revenue / cmax * 100) if cmax else 0 }}%"></div></div>
+        <strong class="num">{{ c.revenue | money }}</strong>
+      </div>
+      {% else %}<div class="empty">尚無資料</div>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card section">
+  <div class="section-head">
+    <h3 style="margin:0">各分店營收</h3>
+    <div class="form-row">
+      <input id="q" class="input" placeholder="🔍 搜尋分店" style="max-width:200px">
+    </div>
+  </div>
+  <div class="chips" id="city-chips" style="margin-bottom:12px">
+    <button class="chip active" data-city="">全部</button>
+    {% for c in cities %}<button class="chip" data-city="{{ c.city }}">{{ c.city }}</button>{% endfor %}
+    <button class="chip" data-status="off">只看離線</button>
+  </div>
+  {% set smax = (stores | map(attribute='revenue') | max) if stores else 0 %}
+  <div class="table-wrap">
+    <table class="table" id="store-table">
+      <thead>
+        <tr>
+          <th class="sortable" data-key="name">分店</th>
+          <th class="sortable" data-key="city">城市</th>
+          <th>狀態</th>
+          <th class="sortable num" data-key="today" data-num="1">今日營收</th>
+          <th class="sortable num" data-key="orders" data-num="1">訂單數</th>
+          <th class="sortable num" data-key="avg" data-num="1">客單價</th>
+          <th class="sortable num" data-key="revenue" data-num="1">累計營收</th>
+          <th style="min-width:120px">占比</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in stores %}
+        <tr data-name="{{ s.name }} {{ s.store_id }}" data-city="{{ s.city }}" data-online="{{ 1 if s.online else 0 }}"
+            data-today="{{ s.today_revenue }}" data-orders="{{ s.order_count }}" data-avg="{{ s.avg_ticket }}" data-revenue="{{ s.revenue }}">
+          <td><a href="{{ url_for('store_detail', store_id=s.store_id) }}"><strong>{{ s.name }}</strong></a><div class="muted small">{{ s.store_id }}</div></td>
+          <td>{{ s.city }}</td>
+          <td>{% if s.online %}<span class="badge ok">連線中</span>{% else %}<span class="badge off">離線</span>{% endif %}</td>
+          <td class="num">{{ s.today_revenue | money }}</td>
+          <td class="num">{{ s.order_count }}</td>
+          <td class="num">{{ s.avg_ticket | money }}</td>
+          <td class="num"><strong>{{ s.revenue | money }}</strong></td>
+          <td><div class="bar-track"><div class="bar-fill" style="width:{{ (s.revenue / smax * 100) if smax else 0 }}%"></div></div></td>
+          <td>{% if s.url %}<a class="btn btn-ghost btn-sm" href="{{ s.url }}" target="_blank">門市網站</a>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" class="empty">尚無分店報到，請確認分店服務已啟動。</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="grid grid-2 section">
+  <div class="card">
+    <h3>熱銷品項 Top 10</h3>
+    {% set imax = (top_items | map(attribute='revenue') | max) if top_items else 0 %}
+    <div class="bars">
+      {% for i in top_items %}
+      <div class="bar-row">
+        <span>{{ i.name }}</span>
+        <div class="bar-track"><div class="bar-fill {{ 'amber' if i.kind == 'special' else 'blue' }}" style="width:{{ (i.revenue / imax * 100) if imax else 0 }}%"></div></div>
+        <span class="num small"><strong>{{ i.revenue | money }}</strong> · {{ i.qty }} 杯</span>
+      </div>
+      {% else %}<div class="empty">尚無銷售資料</div>{% endfor %}
+    </div>
+    <div class="muted small" style="margin-top:12px"><span class="badge common">共用品項</span> <span class="badge special">分店特色</span></div>
+  </div>
+  <div class="card">
+    <h3>分店特色飲品排行</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>#</th><th>特色飲品</th><th>分店</th><th class="num">杯數</th><th class="num">營收</th></tr></thead>
+        <tbody>
+        {% for i in special_rank %}
+        <tr><td>{{ loop.index }}</td><td><strong>{{ i.name }}</strong></td><td>{{ i.store_name or i.store_id }}</td>
+            <td class="num">{{ i.qty }}</td><td class="num">{{ i.revenue | money }}</td></tr>
+        {% else %}<tr><td colspan="5" class="empty">各分店尚未賣出特色飲品</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  setTimeout(() => location.reload(), 60000);
+  const tbody = document.querySelector('#store-table tbody');
+  const rows = [...tbody.querySelectorAll('tr[data-name]')];
+  let city = '', offOnly = false;
+  function applyFilter() {
+    const kw = document.getElementById('q').value.trim().toLowerCase();
+    rows.forEach(r => {
+      const ok = (!city || r.dataset.city === city) &&
+                 (!offOnly || r.dataset.online === '0') &&
+                 (!kw || r.dataset.name.toLowerCase().includes(kw));
+      r.style.display = ok ? '' : 'none';
+    });
+  }
+  document.getElementById('q').addEventListener('input', applyFilter);
+  document.querySelectorAll('#city-chips .chip').forEach(btn => btn.addEventListener('click', () => {
+    if (btn.dataset.status) { offOnly = !offOnly; btn.classList.toggle('active', offOnly); }
+    else {
+      city = btn.dataset.city;
+      document.querySelectorAll('#city-chips .chip[data-city]').forEach(b => b.classList.toggle('active', b === btn));
+    }
+    applyFilter();
+  }));
+  let sortState = {};
+  document.querySelectorAll('#store-table th.sortable').forEach(th => th.addEventListener('click', () => {
+    const key = th.dataset.key, num = th.dataset.num;
+    const dir = sortState[key] = -(sortState[key] || (num ? 1 : -1));
+    rows.sort((a, b) => {
+      const x = a.dataset[key], y = b.dataset[key];
+      return (num ? (Number(x) - Number(y)) : x.localeCompare(y, 'zh-Hant')) * dir;
+    }).forEach(r => tbody.appendChild(r));
+  }));
+</script>
+{% endblock %}

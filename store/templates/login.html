@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}店長登入{% endblock %}
+{% block content %}
+<div class="login-wrap">
+  <div class="card login-card">
+    <div class="logo-mark">🧑‍💼</div>
+    <h2 style="margin-bottom:4px">店長登入</h2>
+    <p class="muted small" style="margin-top:0">{{ store.name }} · 登入後可以查看本店經營資訊、管理特色飲品。</p>
+    <form method="post">
+      <div class="field"><label>帳號</label><input class="input" name="username" required autofocus></div>
+      <div class="field"><label>密碼</label><input class="input" name="password" type="password" required></div>
+      <button class="btn btn-block" type="submit">登入</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

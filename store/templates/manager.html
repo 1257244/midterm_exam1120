@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}店長後台{% endblock %}
+{% block content %}
+<div class="section-head">
+  <div>
+    <h2 style="font-size:1.5rem;margin-bottom:4px">{{ store.name }}｜經營資訊</h2>
+    <div class="muted small">{{ store.city }} · 門市代號 {{ store.id }}</div>
+  </div>
+  <a class="btn btn-ghost btn-sm" href="{{ url_for('manager_dashboard') }}">↻ 重新整理</a>
+</div>
+
+<div class="card status-strip">
+  <div><strong>總部連線</strong>
+    {% if sync.hq_online %}<span class="badge ok">正常</span>
+    {% else %}<span class="badge off">離線</span>{% endif %}
+  </div>
+  <div class="muted small">
+    {% if sync.hq_online %}最後同步 {{ sync.last_sync }} · 共用菜單與營收每 30 秒自動同步
+    {% else %}總部暫時連不上：本店照常營業，訂單會先存在本店，恢復連線後自動補傳{% endif %}
+  </div>
+</div>
+
+<div class="kpis">
+  <div class="kpi accent"><div class="label">💰 今日營收</div><div class="value">{{ stats.today | money }}</div><div class="hint">今日 {{ stats.today_orders }} 筆訂單</div></div>
+  <div class="kpi"><div class="label">📈 累計營收</div><div class="value">{{ stats.revenue | money }}</div><div class="hint">共 {{ stats.orders }} 筆訂單</div></div>
+  <div class="kpi"><div class="label">🧾 平均客單價</div><div class="value">{{ avg_ticket | money }}</div></div>
+  <div class="kpi"><div class="label">📤 待回報總部</div><div class="value">{{ stats.unsynced }}</div><div class="hint">{{ '全部已回報' if stats.unsynced == 0 else '恢復連線後自動補傳' }}</div></div>
+</div>
+
+<div class="grid grid-2 section">
+  <div class="card">
+    <h3>近 14 日營收</h3>
+    {% set dmax = daily | map(attribute='revenue') | max %}
+    <div class="cols">
+      {% for d in daily %}
+      <div class="col" title="{{ d.day }}：{{ d.revenue | money }}（{{ d.orders }} 筆）">
+        <div class="col-val">{% if d.revenue %}{{ d.revenue }}{% endif %}</div>
+        <div class="col-bar" style="height:{{ (d.revenue / dmax * 100) if dmax else 0 }}%"></div>
+        <div class="col-lbl">{{ d.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="card">
+    <h3>品項銷售排行</h3>
+    {% set imax = (items | map(attribute='revenue') | max) if items else 0 %}
+    <div class="bars">
+      {% for i in items %}
+      <div class="bar-row">
+        <span>{{ i.name }}</span>
+        <div class="bar-track"><div class="bar-fill {{ 'amber' if i.kind == 'special' else 'blue' }}" style="width:{{ (i.revenue / imax * 100) if imax else 0 }}%"></div></div>
+        <span class="num small"><strong>{{ i.revenue | money }}</strong> · {{ i.qty }} 杯</span>
+      </div>
+      {% else %}<div class="empty">尚無銷售資料</div>{% endfor %}
+    </div>
+    <div class="muted small" style="margin-top:12px"><span class="badge common">共用品項</span> <span class="badge special">本店特色</span></div>
+  </div>
+</div>
+
+<div class="card section">
+  <div class="section-head"><h3 style="margin:0">⭐ 本店特色飲品管理</h3><span class="muted small">只會出現在本店網站</span></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>產品圖</th><th>品項</th><th>說明 / 價格 / 換圖</th><th>狀態</th><th></th></tr></thead>
+      <tbody>
+      {% for s in specials %}
+      {% set img = image_url(s.image) %}
+      <tr>
+        <td><div class="drink-art art-special" style="width:56px;height:56px;border-radius:12px;font-size:1.5rem;{% if img %}background:#fff url('{{ img }}') center/cover no-repeat{% endif %}">{% if not img %}⭐{% endif %}</div></td>
+        <td><strong>{{ s.name }}</strong></td>
+        <td>
+          <form method="post" action="{{ url_for('manage_specials') }}" enctype="multipart/form-data" class="form-row">
+            <input type="hidden" name="action" value="update"><input type="hidden" name="id" value="{{ s.id }}">
+            <input class="input" name="description" value="{{ s.description or '' }}" placeholder="說明" style="flex:1;min-width:160px">
+            <input class="input" name="price" type="number" min="1" value="{{ s.price }}" style="width:84px">
+            <input class="input" name="image" type="file" accept="image/*" style="max-width:190px">
+            <button class="btn btn-ghost btn-sm" type="submit">儲存</button>
+          </form>
+        </td>
+        <td>{% if s.active %}<span class="badge ok">販售中</span>{% else %}<span class="badge off">已下架</span>{% endif %}</td>
+        <td>
+          <div class="form-row">
+            <form method="post" action="{{ url_for('manage_specials') }}" class="inline-form"><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="{{ s.id }}">
+              <button class="btn btn-sm {{ 'btn-outline' if s.active else '' }}" type="submit">{{ '下架' if s.active else '上架' }}</button></form>
+            <form method="post" action="{{ url_for('manage_specials') }}" class="inline-form" onsubmit="return confirm('確定刪除「{{ s.name }}」？')"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="{{ s.id }}">
+              <button class="btn btn-ghost btn-sm" type="submit">刪除</button></form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty">尚未新增特色飲品</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:22px">＋ 新增特色飲品</h3>
+  <form method="post" action="{{ url_for('manage_specials') }}" enctype="multipart/form-data" class="form-row">
+    <input type="hidden" name="action" value="add">
+    <input class="input" name="name" placeholder="品項名稱" required>
+    <input class="input" name="price" type="number" min="1" placeholder="價格" required style="width:100px">
+    <input class="input" name="description" placeholder="說明（選填）" style="flex:1;min-width:180px">
+    <input class="input" name="image" type="file" accept="image/*" style="max-width:220px" title="產品圖（選填）">
+    <button class="btn" type="submit">新增</button>
+  </form>
+  <p class="muted small" style="margin-bottom:0">產品圖建議使用 800×800 的正方形 PNG／JPG，檔案 5MB 以內。</p>
+</div>
+
+<div class="card">
+  <h3>最近 15 筆訂單</h3>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>訂單編號</th><th>時間</th><th class="num">金額</th><th>總部同步</th></tr></thead>
+      <tbody>
+      {% for o in recent %}
+      <tr><td><a href="{{ url_for('receipt', order_no=o.order_no) }}">{{ o.order_no }}</a></td><td>{{ o.created_at }}</td>
+          <td class="num">{{ o.total | money }}</td>
+          <td>{% if o.synced %}<span class="badge ok">已回報</span>{% else %}<span class="badge off">待回報</span>{% endif %}</td></tr>
+      {% else %}<tr><td colspan="4" class="empty">尚無訂單</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

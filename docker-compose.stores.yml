@@ -1,0 +1,195 @@
+# ⚠️ 此檔由 scripts/gen-stores.sh 依 stores.csv 自動產生，請勿手動修改
+# 所有分店都使用同一個 drink-store 映像檔，只有環境變數不同
+services:
+
+  store-taoyuan1:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:${TAG:-latest}
+    container_name: drink-store-taoyuan1
+    restart: unless-stopped
+    depends_on:
+      - hq
+    environment:
+      STORE_ID: "taoyuan1"
+      STORE_NAME: "桃園中正店"
+      STORE_CITY: "桃園市"
+      MANAGER_USER: manager
+      MANAGER_PASSWORD: "${STORE_PASSWORD_TAOYUAN1:-ty1pass}"
+      HQ_URL: http://hq:5000
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      SYNC_INTERVAL: "30"
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.store-taoyuan1.rule=Path(`/store/taoyuan1`) || PathPrefix(`/store/taoyuan1/`)"
+      - "traefik.http.routers.store-taoyuan1.entrypoints=web"
+      - "traefik.http.routers.store-taoyuan1.middlewares=store-taoyuan1-strip"
+      - "traefik.http.middlewares.store-taoyuan1-strip.stripprefix.prefixes=/store/taoyuan1"
+      - "traefik.http.services.store-taoyuan1.loadbalancer.server.port=5000"
+    volumes:
+      - store-taoyuan1-data:/data
+    networks:
+      - drinknet
+
+  store-taoyuan2:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:${TAG:-latest}
+    container_name: drink-store-taoyuan2
+    restart: unless-stopped
+    depends_on:
+      - hq
+    environment:
+      STORE_ID: "taoyuan2"
+      STORE_NAME: "桃園中壢店"
+      STORE_CITY: "桃園市"
+      MANAGER_USER: manager
+      MANAGER_PASSWORD: "${STORE_PASSWORD_TAOYUAN2:-ty2pass}"
+      HQ_URL: http://hq:5000
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      SYNC_INTERVAL: "30"
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.store-taoyuan2.rule=Path(`/store/taoyuan2`) || PathPrefix(`/store/taoyuan2/`)"
+      - "traefik.http.routers.store-taoyuan2.entrypoints=web"
+      - "traefik.http.routers.store-taoyuan2.middlewares=store-taoyuan2-strip"
+      - "traefik.http.middlewares.store-taoyuan2-strip.stripprefix.prefixes=/store/taoyuan2"
+      - "traefik.http.services.store-taoyuan2.loadbalancer.server.port=5000"
+    volumes:
+      - store-taoyuan2-data:/data
+    networks:
+      - drinknet
+
+  store-taoyuan3:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:${TAG:-latest}
+    container_name: drink-store-taoyuan3
+    restart: unless-stopped
+    depends_on:
+      - hq
+    environment:
+      STORE_ID: "taoyuan3"
+      STORE_NAME: "桃園八德店"
+      STORE_CITY: "桃園市"
+      MANAGER_USER: manager
+      MANAGER_PASSWORD: "${STORE_PASSWORD_TAOYUAN3:-ty3pass}"
+      HQ_URL: http://hq:5000
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      SYNC_INTERVAL: "30"
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.store-taoyuan3.rule=Path(`/store/taoyuan3`) || PathPrefix(`/store/taoyuan3/`)"
+      - "traefik.http.routers.store-taoyuan3.entrypoints=web"
+      - "traefik.http.routers.store-taoyuan3.middlewares=store-taoyuan3-strip"
+      - "traefik.http.middlewares.store-taoyuan3-strip.stripprefix.prefixes=/store/taoyuan3"
+      - "traefik.http.services.store-taoyuan3.loadbalancer.server.port=5000"
+    volumes:
+      - store-taoyuan3-data:/data
+    networks:
+      - drinknet
+
+  store-taipei:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:${TAG:-latest}
+    container_name: drink-store-taipei
+    restart: unless-stopped
+    depends_on:
+      - hq
+    environment:
+      STORE_ID: "taipei"
+      STORE_NAME: "台北信義店"
+      STORE_CITY: "台北市"
+      MANAGER_USER: manager
+      MANAGER_PASSWORD: "${STORE_PASSWORD_TAIPEI:-tpepass}"
+      HQ_URL: http://hq:5000
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      SYNC_INTERVAL: "30"
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.store-taipei.rule=Path(`/store/taipei`) || PathPrefix(`/store/taipei/`)"
+      - "traefik.http.routers.store-taipei.entrypoints=web"
+      - "traefik.http.routers.store-taipei.middlewares=store-taipei-strip"
+      - "traefik.http.middlewares.store-taipei-strip.stripprefix.prefixes=/store/taipei"
+      - "traefik.http.services.store-taipei.loadbalancer.server.port=5000"
+    volumes:
+      - store-taipei-data:/data
+    networks:
+      - drinknet
+
+  store-taichung:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:${TAG:-latest}
+    container_name: drink-store-taichung
+    restart: unless-stopped
+    depends_on:
+      - hq
+    environment:
+      STORE_ID: "taichung"
+      STORE_NAME: "台中逢甲店"
+      STORE_CITY: "台中市"
+      MANAGER_USER: manager
+      MANAGER_PASSWORD: "${STORE_PASSWORD_TAICHUNG:-tchpass}"
+      HQ_URL: http://hq:5000
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      SYNC_INTERVAL: "30"
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.store-taichung.rule=Path(`/store/taichung`) || PathPrefix(`/store/taichung/`)"
+      - "traefik.http.routers.store-taichung.entrypoints=web"
+      - "traefik.http.routers.store-taichung.middlewares=store-taichung-strip"
+      - "traefik.http.middlewares.store-taichung-strip.stripprefix.prefixes=/store/taichung"
+      - "traefik.http.services.store-taichung.loadbalancer.server.port=5000"
+    volumes:
+      - store-taichung-data:/data
+    networks:
+      - drinknet
+
+  store-tainan:
+    image: ${DOCKERHUB_USER:?請在 .env 設定 DOCKERHUB_USER}/drink-store:${TAG:-latest}
+    container_name: drink-store-tainan
+    restart: unless-stopped
+    depends_on:
+      - hq
+    environment:
+      STORE_ID: "tainan"
+      STORE_NAME: "台南成大店"
+      STORE_CITY: "台南市"
+      MANAGER_USER: manager
+      MANAGER_PASSWORD: "${STORE_PASSWORD_TAINAN:-tnnpass}"
+      HQ_URL: http://hq:5000
+      HQ_API_KEY: ${HQ_API_KEY:-change-me-api-key}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      BRAND_NAME: ${BRAND_NAME:-開心飲品}
+      SYNC_INTERVAL: "30"
+      TZ: Asia/Taipei
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.store-tainan.rule=Path(`/store/tainan`) || PathPrefix(`/store/tainan/`)"
+      - "traefik.http.routers.store-tainan.entrypoints=web"
+      - "traefik.http.routers.store-tainan.middlewares=store-tainan-strip"
+      - "traefik.http.middlewares.store-tainan-strip.stripprefix.prefixes=/store/tainan"
+      - "traefik.http.services.store-tainan.loadbalancer.server.port=5000"
+    volumes:
+      - store-tainan-data:/data
+    networks:
+      - drinknet
+
+networks:
+  drinknet:
+    name: drinknet
+
+volumes:
+  store-taoyuan1-data:
+  store-taoyuan2-data:
+  store-taoyuan3-data:
+  store-taipei-data:
+  store-taichung-data:
+  store-tainan-data:

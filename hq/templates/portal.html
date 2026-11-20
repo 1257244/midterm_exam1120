@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}門市據點{% endblock %}
+{% block content %}
+{% set emojis = ['🧋', '🍂', '🍵', '🌼', '🌿', '🍑', '🫐'] %}
+<section class="hero">
+  <h1>一杯好茶，處處開心</h1>
+  <p>{{ brand }}在全台各地都有門市。每間門市都提供品牌經典飲品，也有各店自己研發的限定特色飲品。</p>
+  <div class="hero-meta">
+    <span class="pill">📍 {{ store_count }} 間門市</span>
+    <span class="pill">🏙️ {{ cities | length }} 個城市</span>
+    <span class="pill">🧋 {{ menu | length }} 款經典飲品</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>品牌經典飲品</h2>
+    <span class="muted small">全門市同步供應</span>
+  </div>
+  <div class="grid grid-3">
+    {% for d in menu %}
+    {% set img = image_url(d.image) %}
+    <div class="drink">
+      <div class="drink-art art-{{ loop.index0 % 7 }}{{ ' has-img' if img }}" {% if img %}style="background-image:url('{{ img }}')" role="img" aria-label="{{ d.name }}"{% endif %}>{% if not img %}{{ emojis[loop.index0 % 7] }}{% endif %}</div>
+      <div class="drink-body">
+        <div class="drink-name">{{ d.name }}</div>
+        <div class="drink-desc">{{ d.description or '' }}</div>
+        <div class="drink-foot"><span class="price">{{ d.price | money }}</span></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>門市據點</h2>
+    <input id="store-search" class="input" placeholder="🔍 搜尋門市或城市" style="max-width:260px">
+  </div>
+  {% for city, stores in cities.items() %}
+  <div class="city-block" data-city="{{ city }}">
+    <div class="city-title"><strong>{{ city }}</strong><span class="count">{{ stores | length }} 間</span></div>
+    <div class="grid grid-3">
+      {% for s in stores %}
+      <div class="card store-card" data-search="{{ s.name }} {{ city }} {{ s.store_id }}">
+        <div class="top">
+          <div>
+            <div class="name">{{ s.name }}</div>
+            <div class="meta">{{ city }} · 門市代號 {{ s.store_id }}</div>
+          </div>
+          {% if s.online %}<span class="badge ok">營業中</span>{% else %}<span class="badge off">暫停服務</span>{% endif %}
+        </div>
+        <div class="actions">
+          {% if s.url %}<a class="btn btn-sm btn-block" href="{{ s.url }}">進入門市點餐 →</a>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% else %}
+  <div class="card empty">目前還沒有門市上線。分店服務啟動後，約 30 秒內會自動出現在這裡。</div>
+  {% endfor %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+  const q = document.getElementById('store-search');
+  q && q.addEventListener('input', () => {
+    const kw = q.value.trim().toLowerCase();
+    document.querySelectorAll('.city-block').forEach(block => {
+      let shown = 0;
+      block.querySelectorAll('.store-card').forEach(c => {
+        const hit = !kw || c.dataset.search.toLowerCase().includes(kw);
+        c.style.display = hit ? '' : 'none';
+        if (hit) shown++;
+      });
+      block.style.display = shown ? '' : 'none';
+    });
+  });
+</script>
+{% endblock %}

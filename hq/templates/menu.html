@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}共用菜單管理{% endblock %}
+{% block content %}
+{% set emojis = ['🧋', '🍂', '🍵', '🌼', '🌿', '🍑', '🫐'] %}
+<div class="section-head">
+  <div>
+    <h2 style="font-size:1.5rem;margin-bottom:4px">全品牌共用菜單</h2>
+    <div class="muted small">這裡的品項會出現在所有分店，修改後各分店會在 30 秒內自動同步。</div>
+  </div>
+</div>
+
+<div class="card section">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th></th><th>品項</th><th>說明 / 價格</th><th>狀態</th><th></th></tr></thead>
+      <tbody>
+      {% for m in menu %}
+      <tr>
+        {% set img = image_url(m.image) %}
+        <td><div class="drink-art art-{{ loop.index0 % 7 }}" style="width:44px;height:44px;border-radius:12px;font-size:1.4rem;{% if img %}background:#fff url('{{ img }}') center/cover no-repeat{% endif %}">{% if not img %}{{ emojis[loop.index0 % 7] }}{% endif %}</div></td>
+        <td><strong>{{ m.name }}</strong></td>
+        <td>
+          <form method="post" class="form-row">
+            <input type="hidden" name="action" value="update"><input type="hidden" name="id" value="{{ m.id }}">
+            <input class="input" name="description" value="{{ m.description or '' }}" placeholder="說明" style="flex:1;min-width:160px">
+            <input class="input" name="price" type="number" min="1" value="{{ m.price }}" style="width:90px">
+            <button class="btn btn-ghost btn-sm" type="submit">儲存</button>
+          </form>
+        </td>
+        <td>{% if m.active %}<span class="badge ok">販售中</span>{% else %}<span class="badge off">已下架</span>{% endif %}</td>
+        <td>
+          <form method="post" class="inline-form"><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="{{ m.id }}">
+            <button class="btn btn-sm {{ 'btn-outline' if m.active else '' }}" type="submit">{{ '下架' if m.active else '上架' }}</button></form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h3>新增共用品項</h3>
+  <form method="post" class="form-row">
+    <input type="hidden" name="action" value="add">
+    <input class="input" name="name" placeholder="品項名稱" required>
+    <input class="input" name="price" type="number" min="1" placeholder="價格" required style="width:110px">
+    <input class="input" name="description" placeholder="說明（選填）" style="flex:1;min-width:180px">
+    <button class="btn" type="submit">＋ 新增</button>
+  </form>
+</div>
+{% endblock %}

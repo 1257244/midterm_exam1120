@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_drink.html" import drink_card with context %}
+{% block content %}
+<section class="hero">
+  <h1>{{ store.name }}</h1>
+  <p>歡迎光臨{{ brand }}！品牌經典飲品之外，也別錯過本店才喝得到的限定特色飲品。</p>
+  <div class="hero-meta">
+    {% if store.city %}<span class="pill">📍 {{ store.city }}</span>{% endif %}
+    <span class="pill">🧋 經典 {{ common | length }} 款</span>
+    <span class="pill">⭐ 本店限定 {{ specials | length }} 款</span>
+  </div>
+</section>
+
+<form method="post" action="{{ url_for('place_order') }}" id="order-form">
+  {% if specials %}
+  <section class="section">
+    <div class="section-head">
+      <h2>⭐ 本店限定特色飲品</h2>
+      <span class="muted small">只有 {{ store.name }} 喝得到</span>
+    </div>
+    <div class="grid grid-3">
+      {% for d in specials %}{{ drink_card(d, loop.index0, True) }}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="section-head">
+      <h2>品牌經典飲品</h2>
+      <span class="muted small">全門市同步供應</span>
+    </div>
+    <div class="grid grid-3">
+      {% for d in common %}{{ drink_card(d, loop.index0) }}{% endfor %}
+    </div>
+  </section>
+
+  <div class="cartbar">
+    <div>
+      <div class="count" id="cart-count">尚未選擇飲料</div>
+      <div class="total" id="cart-total">$0</div>
+    </div>
+    <button class="btn" type="submit" id="submit-btn" disabled>送出訂單 →</button>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+  const inputs = [...document.querySelectorAll('input[data-price]')];
+  function update() {
+    let total = 0, cups = 0;
+    inputs.forEach(i => {
+      let q = Math.max(0, Math.min(99, parseInt(i.value) || 0));
+      if (String(q) !== i.value) i.value = q;
+      total += q * Number(i.dataset.price);
+      cups += q;
+      i.closest('[data-drink]').classList.toggle('in-cart', q > 0);
+    });
+    document.getElementById('cart-total').textContent = '$' + total.toLocaleString();
+    document.getElementById('cart-count').textContent = cups ? `已選 ${cups} 杯` : '尚未選擇飲料';
+    document.getElementById('submit-btn').disabled = cups === 0;
+  }
+  document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
+    const input = b.parentElement.querySelector('input');
+    input.value = (parseInt(input.value) || 0) + Number(b.dataset.step);
+    update();
+  }));
+  inputs.forEach(i => i.addEventListener('input', update));
+  update();
+</script>
+{% endblock %}

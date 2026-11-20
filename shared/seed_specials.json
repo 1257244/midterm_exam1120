@@ -1,0 +1,26 @@
+{
+  "taoyuan1": [
+    {"name": "拉拉山水蜜桃烏龍", "price": 75, "description": "拉拉山水蜜桃果香融合焙香烏龍，香甜不膩", "image": "taoyuan1_peach_oolong.jpg"},
+    {"name": "黑糖珍珠鮮奶", "price": 80, "description": "手炒黑糖掛壁，Q 彈珍珠搭配濃醇鮮奶", "image": "taoyuan1_brown_sugar_boba.jpg"}
+  ],
+  "taoyuan2": [
+    {"name": "客家擂茶拿鐵", "price": 80, "description": "中壢客家擂茶的穀物香氣，加上綿密牛奶", "image": "taoyuan2_hakka_leicha_latte.jpg"},
+    {"name": "桔醬檸檬綠", "price": 65, "description": "客家桔醬的酸甜，搭配檸檬與綠茶", "image": "taoyuan2_kumquat_lemon_green.jpg"}
+  ],
+  "taoyuan3": [
+    {"name": "埤塘蓮花青茶", "price": 70, "description": "向桃園埤塘致敬，淡雅蓮香襯托青茶", "image": "taoyuan3_lotus_green_tea.jpg"},
+    {"name": "芋頭西米露奶茶", "price": 80, "description": "綿密芋泥加上 Q 彈西米露，奶茶控必喝", "image": "taoyuan3_taro_sago_milk_tea.jpg"}
+  ],
+  "taipei": [
+    {"name": "文山包種奶蓋", "price": 75, "description": "文山包種的清新花香，覆蓋微鹹奶蓋", "image": "taipei_baozhong_cheese_foam.jpg"},
+    {"name": "貓空鐵觀音拿鐵", "price": 80, "description": "貓空鐵觀音的炭焙韻味，配上香醇牛奶", "image": "taipei_tieguanyin_latte.jpg"}
+  ],
+  "taichung": [
+    {"name": "大甲芋頭鮮奶", "price": 85, "description": "大甲芋頭現蒸搗泥，紫白漸層超吸睛", "image": "taichung_dajia_taro_milk.jpg"},
+    {"name": "梨山高冷烏龍", "price": 70, "description": "梨山高山烏龍，清透琥珀色、喉韻回甘", "image": "taichung_lishan_oolong.jpg"}
+  ],
+  "tainan": [
+    {"name": "麻豆文旦青茶", "price": 70, "description": "麻豆文旦果粒搭配青茶，清爽解膩", "image": "tainan_pomelo_green_tea.jpg"},
+    {"name": "玉井芒果冰沙", "price": 85, "description": "玉井愛文芒果現打冰沙，夏日限定的濃郁果香", "image": "tainan_mango_smoothie.jpg"}
+  ]
+}
