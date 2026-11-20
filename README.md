@@ -145,7 +145,7 @@ cp .env.example .env
 nano .env
 ```
 
-把 `DOCKERHUB_USER` 改成放映像檔的 Docker Hub 帳號。正式使用時，也請一併修改 `HQ_API_KEY`、`SECRET_KEY` 和密碼。
+`DOCKERHUB_USER` 預設為 `alexliu0814`，會直接從 Docker Hub 下載已發布的映像檔（[drink-hq](https://hub.docker.com/r/alexliu0814/drink-hq)、[drink-store](https://hub.docker.com/r/alexliu0814/drink-store)），**不需修改即可部署**。若要改用自己打包的映像檔，再改成你的帳號。正式使用時，也請一併修改 `HQ_API_KEY`、`SECRET_KEY` 和密碼。
 
 ### Step 4：從 Docker Hub 下載映像檔並啟動
 
